@@ -7,7 +7,7 @@ pipeline {
     environment {
         // REEMPLAZA ESTO: Pon el ID que Jenkins generó automáticamente 
         // (el que viste en la lista de credenciales)
-        DOCKER_HUB_ID = 'TU_ID_AUTOMATICO_DE_JENKINS'
+        DOCKER_HUB_ID = '1e2af35d-df46-421c-b1e6-d61d6aa3783e'
         DOCKER_USER = 'jorluis'
     }
 
