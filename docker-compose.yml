@@ -1,0 +1,142 @@
+services:
+  # --- BASES DE DATOS ---
+  db-employees:
+    image: postgres:15
+    container_name: db-employees
+    environment:
+      POSTGRES_USER: user_employees
+      POSTGRES_PASSWORD: pass_employees
+      POSTGRES_DB: employees_db
+    volumes:
+      - ./employees/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rrhh-network
+
+  db-tasks:
+    image: postgres:15
+    container_name: db-tasks
+    environment:
+      POSTGRES_USER: user_tasks
+      POSTGRES_PASSWORD: pass_tasks
+      POSTGRES_DB: tasks_db
+    volumes:
+      - ./tasks/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rrhh-network
+
+  db-attendance:
+    image: postgres:15
+    container_name: db-attendance
+    environment:
+      POSTGRES_USER: user_attendance
+      POSTGRES_PASSWORD: pass_attendance
+      POSTGRES_DB: attendance_db
+    volumes:
+      - ./attendance/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rrhh-network
+
+  db-payroll:
+    image: postgres:15
+    container_name: db-payroll
+    environment:
+      POSTGRES_USER: user_payroll
+      POSTGRES_PASSWORD: pass_payroll
+      POSTGRES_DB: payroll_db
+    volumes:
+      - ./payroll/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rrhh-network
+
+  # --- MICROSERVICIOS ---
+  employees:
+    build:
+      context: ./employees
+      dockerfile: dockerfile
+    container_name: micro-employees
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db-employees
+    env_file: ./employees/.env
+    networks:
+      - rrhh-network
+
+  tasks:
+    build: ./tasks
+    container_name: micro-tasks
+    ports:
+      - "3002:3002"
+    depends_on:
+      - db-tasks
+    env_file: ./tasks/.env
+    networks:
+      - rrhh-network
+
+  attendance:
+    build: ./attendance
+    container_name: micro-attendance
+    ports:
+      - "3003:3003"
+    depends_on:
+      - db-attendance
+    env_file: ./attendance/.env
+    networks:
+      - rrhh-network
+
+  payroll:
+    build:
+      context: ./payroll
+      dockerfile: dockerfile
+    container_name: micro-payroll
+    ports:
+      - "3004:3004"
+    depends_on:
+      - db-payroll
+    env_file: ./payroll/.env
+    networks:
+      - rrhh-network
+
+  reports:
+    build:
+      context: ./reports
+      dockerfile: dockerfile
+    container_name: micro-reports
+    ports:
+      - "3007:3007"
+    depends_on:
+      - employees
+      - attendance
+      - payroll
+    env_file: ./reports/.env
+    networks:
+      - rrhh-network
+
+  gateway:
+    build: ./gateway
+    container_name: micro-gateway
+    ports:
+      - "4000:4000"
+    depends_on:
+      - employees
+      - tasks
+      - attendance
+      - payroll
+      - reports
+    env_file: ./gateway/.env
+    networks:
+      - rrhh-network
+
+  frontend:
+    build: ./frontend
+    container_name: micro-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+    networks:
+      - rrhh-network
+
+networks:
+  rrhh-network:
+    driver: bridge

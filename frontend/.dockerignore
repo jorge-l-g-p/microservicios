@@ -1,0 +1,16 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Logs y Temporales
+npm-debug.log
+.DS_Store
+Thumbs.db
+
+# Si llegaras a usar npm en el front en el futuro
+node_modules

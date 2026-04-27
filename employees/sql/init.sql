@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS empleados (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    cargo VARCHAR(100)
+);

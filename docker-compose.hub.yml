@@ -1,0 +1,180 @@
+services:
+  # --- BASES DE DATOS ---
+  db-employees:
+    image: postgres:15
+    container_name: db-employees
+    environment:
+      POSTGRES_USER: user_employees
+      POSTGRES_PASSWORD: pass_employees
+      POSTGRES_DB: employees_db
+    volumes:
+      - db-employees-data:/var/lib/postgresql/data
+      - ./init-employees.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rrhh-network
+
+  db-tasks:
+    image: postgres:15
+    container_name: db-tasks
+    environment:
+      POSTGRES_USER: user_tasks
+      POSTGRES_PASSWORD: pass_tasks
+      POSTGRES_DB: tasks_db
+    volumes:
+      - db-tasks-data:/var/lib/postgresql/data
+      - ./init-tasks.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rrhh-network
+
+  db-attendance:
+    image: postgres:15
+    container_name: db-attendance
+    environment:
+      POSTGRES_USER: user_attendance
+      POSTGRES_PASSWORD: pass_attendance
+      POSTGRES_DB: attendance_db
+    volumes:
+      - db-attendance-data:/var/lib/postgresql/data
+      - ./init-attendance.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rrhh-network
+
+  db-payroll:
+    image: postgres:15
+    container_name: db-payroll
+    environment:
+      POSTGRES_USER: user_payroll
+      POSTGRES_PASSWORD: pass_payroll
+      POSTGRES_DB: payroll_db
+    volumes:
+      - db-payroll-data:/var/lib/postgresql/data
+      - ./init-payroll.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rrhh-network
+
+  # --- MICROSERVICIOS ---
+  employees:
+    image: jorluis/erp-employees
+    container_name: micro-employees
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db-employees
+    environment:
+      PORT: 3000
+      DB_USER: user_employees
+      DB_PASSWORD: pass_employees
+      DB_HOST: db-employees
+      DB_NAME: employees_db
+      DB_PORT: 5432
+    networks:
+      - rrhh-network
+
+  tasks:
+    image: jorluis/erp-tasks
+    container_name: micro-tasks
+    ports:
+      - "3002:3002"
+    depends_on:
+      - db-tasks
+    environment:
+      PORT: 3002
+      DB_USER: user_tasks
+      DB_PASSWORD: pass_tasks
+      DB_HOST: db-tasks
+      DB_NAME: tasks_db
+      DB_PORT: 5432
+    networks:
+      - rrhh-network
+
+  attendance:
+    image: jorluis/erp-attendance
+    container_name: micro-attendance
+    ports:
+      - "3003:3003"
+    depends_on:
+      - db-attendance
+    environment:
+      PORT: 3003
+      DB_USER: user_attendance
+      DB_PASSWORD: pass_attendance
+      DB_HOST: db-attendance
+      DB_NAME: attendance_db
+      DB_PORT: 5432
+    networks:
+      - rrhh-network
+
+  payroll:
+    image: jorluis/erp-payroll
+    container_name: micro-payroll
+    ports:
+      - "3004:3004"
+    depends_on:
+      - db-payroll
+    environment:
+      PORT: 3004
+      DB_USER: user_payroll
+      DB_PASSWORD: pass_payroll
+      DB_HOST: db-payroll
+      DB_NAME: payroll_db
+      DB_PORT: 5432
+    networks:
+      - rrhh-network
+
+  reports:
+    image: jorluis/erp-reports
+    container_name: micro-reports
+    ports:
+      - "3007:3007"
+    depends_on:
+      - employees
+      - attendance
+      - payroll
+    environment:
+      PORT: 3007
+      EMPLOYEES_SERVICE_URL: http://employees:3000
+      ATTENDANCE_SERVICE_URL: http://attendance:3003
+      PAYROLL_SERVICE_URL: http://payroll:3004
+    networks:
+      - rrhh-network
+
+  gateway:
+    image: jorluis/erp-gateway
+    container_name: micro-gateway
+    ports:
+      - "4000:4000"
+    depends_on:
+      - employees
+      - tasks
+      - attendance
+      - payroll
+      - reports
+    environment:
+      PORT: 4000
+      URL_EMPLEADOS: http://employees:3000
+      URL_TAREAS: http://tasks:3002
+      URL_ASISTENCIAS: http://attendance:3003
+      URL_NOMINAS: http://payroll:3004
+      URL_REPORTES: http://reports:3007
+    networks:
+      - rrhh-network
+
+  frontend:
+    image: jorluis/erp-frontend
+    container_name: micro-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+    networks:
+      - rrhh-network
+
+networks:
+  rrhh-network:
+    driver: bridge
+
+volumes:
+  db-employees-data:
+  db-tasks-data:
+  db-attendance-data:
+  db-payroll-data:
