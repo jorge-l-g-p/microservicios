@@ -61,18 +61,20 @@ pipeline {
         // --- ESTA ES LA ETAPA QUE TE FALTABA PARA EL CD ---
         stage('Deploy to Kali VM') {
             steps {
-                script {
-                    echo "--- Iniciando Despliegue en la VM Kali ---"
-                    withCredentials([usernamePassword(credentialsId: "${KALI_CRED_ID}", passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                        sh '''
-                        sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no -tt $USER@''' + env.KALI_IP + ''' bash -c '
-                            cd ~/erp-despliegue &&
-                            docker-compose pull &&
-                            docker-compose up -d --force-recreate &&
-                            echo "--- Despliegue en Kali exitoso ---" &&
-                            docker ps
-                        '
-                        '''
+                timeout(time: 5, unit: 'MINUTES') {
+                    script {
+                        echo "--- Iniciando Despliegue en la VM Kali ---"
+                        withCredentials([usernamePassword(credentialsId: "${KALI_CRED_ID}", passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                            sh '''
+                            sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no -o BatchMode=no -T $USER@''' + env.KALI_IP + ''' bash << 'ENDSSH'
+cd ~/erp-despliegue
+docker-compose pull
+docker-compose up -d --force-recreate
+echo "--- Despliegue en Kali exitoso ---"
+docker ps
+ENDSSH
+                            '''
+                        }
                     }
                 }
             }
