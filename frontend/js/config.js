@@ -2,7 +2,7 @@
 const CONFIG = {
     // URL de tu Gateway (Puerto 4000 según tu diagrama)
     // Usamos localhost porque el navegador del cliente accede desde fuera del contenedor
-    API_BASE_URL: 'http://localhost:4000/api',
+    API_BASE_URL: 'http://192.168.232.128:4000/api',
 
     // Rutas de los Microservicios a través del Gateway
     // Esto permite que el Gateway redirija la petición al servicio correcto
