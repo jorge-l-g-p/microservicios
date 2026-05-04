@@ -1,4 +1,4 @@
-const API = "http://localhost:4000/api";
+const API = CONFIG.API_BASE_URL;
 
 let editEmpleadoId = null;
 let miGrafico = null;

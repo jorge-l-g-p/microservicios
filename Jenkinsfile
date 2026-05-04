@@ -67,8 +67,7 @@ pipeline {
                         sh '''
                         sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no -tt $USER@''' + env.KALI_IP + ''' bash -c '
                             cd ~/erp-despliegue &&
-                            docker-compose pull &&
-                            docker-compose up -d &&
+                            docker-compose up -d --no-build &&
                             echo "--- Despliegue en Kali exitoso ---" &&
                             docker ps
                         '
