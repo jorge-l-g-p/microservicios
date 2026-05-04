@@ -64,16 +64,15 @@ pipeline {
                 script {
                     echo "--- Iniciando Despliegue en la VM Kali ---"
                     withCredentials([usernamePassword(credentialsId: "${KALI_CRED_ID}", passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                        // Este comando entra a la VM, va a la carpeta y actualiza el servicio de employees
-                        sh """
-                        sshpass -p '$PASS' ssh -o StrictHostKeyChecking=no $USER@${KALI_IP} << 'EOF'
-                            cd ~/erp-despliegue
-                            docker-compose pull employees
-                            docker-compose up -d employees
-                            echo "--- Despliegue en Kali exitoso ---"
+                        sh '''
+                        sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no -tt $USER@''' + env.KALI_IP + ''' bash -c '
+                            cd ~/erp-despliegue &&
+                            docker-compose pull &&
+                            docker-compose up -d &&
+                            echo "--- Despliegue en Kali exitoso ---" &&
                             docker ps
-                        EOF
-                        """
+                        '
+                        '''
                     }
                 }
             }
