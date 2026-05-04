@@ -69,7 +69,7 @@ pipeline {
                             sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no -o BatchMode=no -T $USER@''' + env.KALI_IP + ''' bash << 'ENDSSH'
 cd ~/erp-despliegue
 docker-compose pull
-docker-compose up -d --force-recreate
+docker-compose up -d --force-recreate --no-deps employees tasks attendance payroll reports gateway frontend
 echo "--- Despliegue en Kali exitoso ---"
 docker ps
 ENDSSH
