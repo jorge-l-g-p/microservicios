@@ -7,9 +7,8 @@ pipeline {
     environment {
         DOCKER_HUB_ID = '1e2af35d-df46-421c-b1e6-d61d6aa3783e'
         DOCKER_USER = 'jorluis'
-        KALI_CRED_ID = 'a5cefc2c-e52e-4bb1-9e48-bc5cdb8cbef8' // Agregamos la IP de tu VM aquí para que sea fácil cambiarla en la U
+        KALI_CRED_ID = 'a5cefc2c-e52e-4bb1-9e48-bc5cdb8cbef8'
         KALI_IP = '192.168.232.128'
-        
     }
 
     stages {
@@ -58,7 +57,6 @@ pipeline {
             }
         }
 
-        // --- ESTA ES LA ETAPA QUE TE FALTABA PARA EL CD ---
         stage('Deploy to Kali VM') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
