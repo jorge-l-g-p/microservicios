@@ -19,7 +19,7 @@ jobs:
           node-version: '20'
 
       - name: Instalar dependencias - ${{ matrix.service }}
-        run: npm ci
+        run: npm install
         working-directory: ./${{ matrix.service }}
 
       - name: Ejecutar tests - ${{ matrix.service }}
