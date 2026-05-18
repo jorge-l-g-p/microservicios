@@ -28,3 +28,4 @@
   "jest": {
     "testEnvironment": "node"
   }
+}
