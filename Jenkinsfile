@@ -51,7 +51,6 @@ pipeline {
                         echo "--- Procesando: ${carpeta} ---"
                         sh "docker build -t ${DOCKER_USER}/${repo}:latest ./${carpeta}"
                         sh "docker push ${DOCKER_USER}/${repo}:latest"
-                        sh "docker rmi ${DOCKER_USER}/${repo}:latest"
                     }
                 }
             }
@@ -59,19 +58,18 @@ pipeline {
 
         stage('Deploy to Kali VM') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
+                timeout(time: 15, unit: 'MINUTES') {
                     script {
                         echo "--- Iniciando Despliegue en la VM Kali ---"
                         withCredentials([usernamePassword(credentialsId: "${KALI_CRED_ID}", passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                            sh '''
-                            sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no -o BatchMode=no -T $USER@''' + env.KALI_IP + ''' bash << 'ENDSSH'
-cd ~/erp-despliegue
-docker-compose pull
-docker-compose up -d --force-recreate --no-deps employees tasks attendance payroll reports gateway frontend
-echo "--- Despliegue en Kali exitoso ---"
-docker ps
-ENDSSH
-                            '''
+                            def repos = ['erp-attendance', 'erp-employees', 'erp-frontend', 'erp-gateway', 'erp-payroll', 'erp-reports', 'erp-tasks']
+                            repos.each { repo ->
+                                echo "--- Transfiriendo ${repo} a Kali ---"
+                                sh "docker save ${DOCKER_USER}/${repo}:latest | sshpass -p \"\$PASS\" ssh -o StrictHostKeyChecking=no -o BatchMode=no \$USER@${KALI_IP} 'docker load'"
+                            }
+                            sh """
+                            sshpass -p "\$PASS" ssh -o StrictHostKeyChecking=no -o BatchMode=no \$USER@${KALI_IP} 'cd /home/george/erp-despliegue && docker-compose up -d --force-recreate --no-deps employees tasks attendance payroll reports gateway frontend && echo "--- Despliegue exitoso ---" && docker ps'
+                            """
                         }
                     }
                 }
