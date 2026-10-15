@@ -147,7 +147,7 @@ async function crearTarea() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ titulo, descripcion, empleado_id }),
     });
-    document.getElementById("titulo").value      = "";
+    document.getElementById("titulo").value = "";
     document.getElementById("descripcion").value = "";
     cargarTareas();
 }
