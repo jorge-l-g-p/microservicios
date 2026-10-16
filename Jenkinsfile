@@ -5,7 +5,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_HUB_ID = '1e2af35d-df46-421c-b1e6-d61d6aa3783e'
+        DOCKER_HUB_ID = 'bd6883f2-f9d3-4822-bbce-d6151b705d55'
         DOCKER_USER = 'jorluis'
         KALI_CRED_ID = 'a5cefc2c-e52e-4bb1-9e48-bc5cdb8cbef8'
         KALI_IP = '192.168.50.128'
